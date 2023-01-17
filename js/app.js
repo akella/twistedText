@@ -1412,11 +1412,11 @@ export default class Sketch {
     this.settings = {
       text: 'impossible,impossible,',
       fontSize: 0.8,
-      rotateSpeed: 0.,
-      twistSpeed: 0.,
+      rotateSpeed: 1.,
+      twistSpeed: 1.,
       fontDepth: 0.8,
       radius: 1.5,
-      twists: 0,
+      twists: 1,
       visual: 0,
       font: 0,
     };
@@ -1508,7 +1508,7 @@ export default class Sketch {
     let matcaptexture = new THREE.TextureLoader().load(matcap);
     matcaptexture.needsUpdate = true;
 
-    let material = THREE.extendMaterial(THREE.MeshStandardMaterial, {
+    let material = THREE.extendMaterial(THREE.MeshMatcapMaterial, {
       // Class of the material you'd like to extend
 
       // Will be prepended to vertex and fragment code
