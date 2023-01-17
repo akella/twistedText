@@ -1412,11 +1412,11 @@ export default class Sketch {
     this.settings = {
       text: 'impossible,impossible,',
       fontSize: 0.8,
-      rotateSpeed: 1.,
-      twistSpeed: 1.,
+      rotateSpeed: 0.,
+      twistSpeed: 0.,
       fontDepth: 0.8,
       radius: 1.5,
-      twists: 0.5,
+      twists: 0,
       visual: 0,
       font: 0,
     };
@@ -1508,7 +1508,7 @@ export default class Sketch {
     let matcaptexture = new THREE.TextureLoader().load(matcap);
     matcaptexture.needsUpdate = true;
 
-    let material = THREE.extendMaterial(THREE.MeshMatcapMaterial, {
+    let material = THREE.extendMaterial(THREE.MeshStandardMaterial, {
       // Class of the material you'd like to extend
 
       // Will be prepended to vertex and fragment code
@@ -1561,7 +1561,7 @@ float mapRange(float value, float min1, float max1, float min2, float max2) {
           objectNormal = rotate(objectNormal, vec3(1.,0.,0.), 0.5*PI*uTwists*xx + 0.01*time*uTwistSpeed);
   
           // circled normal
-          objectNormal = rotate(objectNormal, vec3(0.,0.,1.), (xx + 0.01*time*uRotateSpeed)*PI*2.);
+          objectNormal = rotate(objectNormal, vec3(0.,0.,1.), (xx + 0.01*time*uRotateSpeed)*PI);
           `,
         "#include <begin_vertex>": `
 
@@ -1695,14 +1695,10 @@ float mapRange(float value, float min1, float max1, float min2, float max2) {
 
   addLights() {
     const light1 = new THREE.AmbientLight(0xffffff, 0.5);
-    const light11 = new THREE.AmbientLight(0xffffff, 0.5);
-    this.scene.add(light1);
+    // this.scene.add(light1);
 
     const light2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    const light22 = new THREE.DirectionalLight(0xffffff, 0.5);
-    // light2.position.set(0.5, 0, 0.866); // ~60º
-    light2.position.set(0, -1, 0); // ~60º
-    light22.position.set(0, -1, 0); // ~60º
+    light2.position.set(0, 1, 0); // ~60º
     this.scene.add(light2);
     // this.scene1.add(light22);
     // console.log(light2);
