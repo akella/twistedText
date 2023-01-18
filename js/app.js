@@ -1336,7 +1336,6 @@ import {mergeBufferGeometries} from "three/examples/jsm/utils/BufferGeometryUtil
 
 let matcaps = [matcap, matcap1, matcap2, matcap3]
 matcaps = matcaps.map((m) => new THREE.TextureLoader().load(m))
-console.log(matcaps)
 // require("./extend");
 
 // import font from '../font.json'
@@ -1409,14 +1408,14 @@ export default class Sketch {
   settings() {
     let that = this;
     this.settings = {
-      text: 'impossible,impossible,',
-      fontSize: 0.8,
+      text: 'LOOPING MYSTERIOUS WORLD',
+      fontSize: 1,
       rotateSpeed: 1.,
-      twistSpeed: 1.,
-      fontDepth: 0.8,
-      radius: 1.5,
-      twists: 1,
-      visual: 0,
+      twistSpeed: 7.9,
+      fontDepth: 0.3,
+      radius: 2.8,
+      twists: 2,
+      visual: 1,
       font: 0,
     };
     this.gui = new GUI();
