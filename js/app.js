@@ -3,8 +3,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
-import matcap from "../assets/tomato.png";
-import matcap1 from "../assets/chemical_carpaint_blue.png";
+import matcap from "../assets/chemical_carpaint_blue.png";
+import matcap1 from "../assets/tomato.png";
 import matcap2 from "../assets/clay_alien.png";
 import matcap3 from "../assets/metal_copper_flamed.png";
 require("./extend");
@@ -71,14 +71,14 @@ export default class Sketch {
   settings() {
     let that = this;
     this.settings = {
-      text: "LOOPING MYSTERIOUS WORLD",
+      text: "INCOMPREHENSIBILITY",
       fontSize: 1,
       rotateSpeed: 1,
       twistSpeed: 7.9,
       fontDepth: 0.3,
       radius: 2.8,
       twists: 2,
-      visual: 1,
+      visual: 0,
       font: 0,
     };
     this.gui = new GUI();
