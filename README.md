@@ -1,6 +1,6 @@
 # Rotating Twisted Text with Three.js
 
-![Image Title](https://generative-placeholders.glitch.me/image?width=800&height=600")
+![Image Title](https://tympanus.net/codrops/wp-content/uploads/2023/01/circulartext.jpg)
 
 [Article on Codrops](https://tympanus.net/codrops/?p=69794)
 

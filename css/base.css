@@ -116,16 +116,18 @@ body #cdawrap {
 	color: var(--color-title);
 	padding: var(--padding-page);
 	display: grid;
-	grid-template-columns: auto auto auto;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100vh;
+	grid-template-columns: auto auto 1fr;
 	grid-template-rows: auto auto;
-	grid-template-areas: 'title prev ...' 'sponsor ... ...';
+	grid-template-areas: 'title prev ...' 'sponsor ... demo';
 	justify-content: start;
-	height: auto;
 	pointer-events: none;
 	grid-gap: 2rem;
 	z-index: 1000;
 	align-content: space-between;
-	margin-top: 2rem;
 }
 
 .frame a {
@@ -186,6 +188,13 @@ body #cdawrap {
 	align-self: start;
 }
 
+.frame__demos {
+	grid-area: demo;
+	display: flex;
+	gap: 1.5rem;
+	justify-self: end;
+}
+
 canvas {
 	display: block;
 }
@@ -239,8 +248,5 @@ canvas {
 }
 
 @media screen and (min-width: 53em) {
-	.frame {
-		height: 100vh;
-		margin-top: 0;
-	}
+	
 }
