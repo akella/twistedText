@@ -24,7 +24,7 @@ npx parcel index.html
 Built it:
 
 ```
-parcel build index.html --public-url '.' --no-content-hash
+parcel build index.html --public-url '.' --no-content-hash --no-minify
 ```
 
 ## Credits
