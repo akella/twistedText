@@ -7,13 +7,15 @@ import matcap from "../assets/chemical_carpaint_blue.png";
 import matcap1 from "../assets/tomato.png";
 import matcap2 from "../assets/clay_alien.png";
 import matcap3 from "../assets/metal_copper_flamed.png";
-require("./extend");
 
+import font from "../assets/font.data";
+import font0 from "../assets/font0.data";
+import font1 from "../assets/font1.data";
+import font2 from "../assets/font2.data";
+
+const FONTS = [font, font0, font1, font2];
 let matcaps = [matcap, matcap1, matcap2, matcap3];
 matcaps = matcaps.map((m) => new THREE.TextureLoader().load(m));
-import font1 from '../assets/font1.data'
-
-const FONTS = ["/font.json", "/font0.json", "/font1.json", "/font2.json"];
 
 export default class Sketch {
   constructor(options) {
@@ -55,8 +57,8 @@ export default class Sketch {
     this.camera.position.set(0, 0, 6);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.minDistance = 4
-    this.controls.maxDistance = 12
+    this.controls.minDistance = 4;
+    this.controls.maxDistance = 12;
     this.time = 0;
 
     this.isPlaying = true;
@@ -65,13 +67,12 @@ export default class Sketch {
     this.resize();
     this.render();
     this.setupResize();
-    // this.addLights();
   }
 
   settings() {
     let that = this;
     this.settings = {
-      text: "INCOMPREHENSIBILITY INCOMPREHENSIBILITY",
+      text: "INCOMPREHENSIBILITY",
       fontSize: 1,
       rotateSpeed: 1,
       twistSpeed: 7.9,
@@ -82,7 +83,6 @@ export default class Sketch {
       font: 0,
     };
     this.gui = new GUI();
-
 
     this.gui.add(this.settings, "text").onChange(() => {
       this.updateGeometry();
@@ -95,24 +95,23 @@ export default class Sketch {
     });
 
     this.gui.add(this.settings, "radius", 1, 4, 0.01).onChange(() => {
-      this.material.uniforms.uRadius.value = this.settings.radius;
+      this.uniforms.uRadius.value = this.settings.radius;
     });
     this.gui.add(this.settings, "rotateSpeed", 0, 1, 0.01).onChange(() => {
-      this.material.uniforms.uRotateSpeed.value = this.settings.rotateSpeed;
+      this.uniforms.uRotateSpeed.value = this.settings.rotateSpeed;
     });
 
     this.gui.add(this.settings, "visual", 0, 3, 1).onChange(() => {
-      // update different matcaps
-      this.material.uniforms.matcap.value = matcaps[this.settings.visual];
+      this.material.matcap = matcaps[this.settings.visual];
     });
     this.gui.add(this.settings, "font", 0, 3, 1).onChange(() => {
       this.updateGeometry();
     });
     this.gui.add(this.settings, "twists", 0, 3, 0.01).onChange(() => {
-      this.material.uniforms.uTwists.value = this.settings.twists;
+      this.uniforms.uTwists.value = this.settings.twists;
     });
     this.gui.add(this.settings, "twistSpeed", 0, 10, 0.01).onChange(() => {
-      this.material.uniforms.uTwistSpeed.value = this.settings.twistSpeed;
+      this.uniforms.uTwistSpeed.value = this.settings.twistSpeed;
     });
   }
 
@@ -146,11 +145,9 @@ export default class Sketch {
       this.geo.center();
       this.geo.computeBoundingBox();
 
-      if (this.material.uniforms) {
-        this.material.uniforms.uMin.value = this.geo.boundingBox.min;
-        this.material.uniforms.uMax.value = this.geo.boundingBox.max 
-        this.material.uniforms.uMax.value.x +=this.settings.fontSize/6;
-      }
+      this.uniforms.uMin.value = this.geo.boundingBox.min;
+      this.uniforms.uMax.value = this.geo.boundingBox.max;
+      this.uniforms.uMax.value.x += this.settings.fontSize / 6;
 
       this.textmesh.geometry = this.geo;
     });
@@ -159,13 +156,8 @@ export default class Sketch {
   getMaterial() {
     let matcaptexture = new THREE.TextureLoader().load(matcap);
     matcaptexture.needsUpdate = true;
-
-    let material = THREE.extendMaterial(THREE.MeshMatcapMaterial, {
-      // Class of the material you'd like to extend
-
-      // Will be prepended to vertex and fragment code
-      header: `
-      varying vec3 vPosition;
+    let header = `
+    varying vec3 vPosition;
       varying float vDebug;
       uniform float uOffset;
       uniform float uTwistSpeed;
@@ -198,94 +190,76 @@ float mapRange(float value, float min1, float max1, float min2, float max2) {
   // return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
   return clamp( min2 + (value - min1) * (max2 - min2) / (max1 - min1), min2, max2 );
 }
-      `,
+`;
+    let normals = `
+    // objectNormal
+    vPosition = position;
+    
+    float xx = mapRange(vPosition.x, uMin.x, uMax.x, -1., 1.0);
+    // twistnormal
+    objectNormal = rotate(objectNormal, vec3(1.,0.,0.), 0.5*PI*uTwists*xx + 0.01*time*uTwistSpeed);
 
-      // Insert code lines by hinting at a existing
-      vertex: {
-        // Inserts the line after #include <fog_vertex>
-        "#include <beginnormal_vertex>": `
-
-          // objectNormal
-          vPosition = position;
-          
-          float xx = mapRange(vPosition.x, uMin.x, uMax.x, -1., 1.0);
-          // twistnormal
-          objectNormal = rotate(objectNormal, vec3(1.,0.,0.), 0.5*PI*uTwists*xx + 0.01*time*uTwistSpeed);
-  
-          // circled normal
-          objectNormal = rotate(objectNormal, vec3(0.,1.,0.), (xx + 0.01*time*uRotateSpeed)*PI*2.);
-          `,
-        "#include <begin_vertex>": `
-
-        vec3 pos = transformed;
+    // circled normal
+    objectNormal = rotate(objectNormal, vec3(0.,1.,0.), (xx + 0.01*time*uRotateSpeed)*PI*2.);
+`;
+    let geometry = `
+    vec3 pos = transformed;
         
 
-        float theta = (xx + 0.01*time*uRotateSpeed)*PI*2.;
-        pos = rotate(pos,vec3(1.,0.,0.), 0.5*PI*uTwists*xx + 0.01*time*uTwistSpeed);
+    float theta = (xx + 0.01*time*uRotateSpeed)*PI*2.;
+    pos = rotate(pos,vec3(1.,0.,0.), 0.5*PI*uTwists*xx + 0.01*time*uTwistSpeed);
 
 
 
-        vec3 dir = vec3(sin(theta),pos.y,cos(theta));
-        vec3 undir = vec3(cos(theta),0.,sin(theta));
-        vec3 circled = vec3(dir.x*uRadius,pos.y, dir.z*uRadius) + vec3(pos.z*dir.x,xx*3.,pos.z*dir.z) - undir*pos.y*0.15;
+    vec3 dir = vec3(sin(theta),pos.y,cos(theta));
+    vec3 undir = vec3(cos(theta),0.,sin(theta));
+    vec3 circled = vec3(dir.x*uRadius,pos.y, dir.z*uRadius) + vec3(pos.z*dir.x,xx*3.,pos.z*dir.z) - undir*pos.y*0.15;
 
-        transformed = circled;
-
-
-        `,
+    transformed = circled;
+        `;
+    this.uniforms = {
+      uOffset: { value: 0 },
+      time: {
+        value: 0,
       },
-      fragment: {
-        "vec3 outgoingLight = diffuseColor.rgb * matcapColor.rgb;": `
-        outgoingLight = diffuseColor.rgb*texture2D( matcap, uv ).rgb;
-        `,
+      uRadius: {
+        value: this.settings.radius,
       },
+      uTwists: {
+        value: this.settings.twists,
+      },
+      uTwistSpeed: {
+        value: this.settings.twistSpeed,
+      },
+      uRotateSpeed: {
+        value: this.settings.rotateSpeed,
+      },
+      uMin: {
+        value: { x: -1, y: 0, z: 0 },
+      },
+      uMax: {
+        value: { x: 1, y: 0, z: 0 },
+      },
+    };
 
-      // Uniforms (will be applied to existing or added) as value or uniform object
-      uniforms: {
-        // Use a value directly
-        // diffuse: new THREE.Color(0xffffff),
-        roughness: { value: 0.6 },
-        metalness: { value: 0.6 },
-        uOffset: { value: 0 },
-        time: {
-          value: 0,
-          mixed: true,
-          linked: true,
-        },
-        uRadius: {
-          value: this.settings.radius,
-          mixed: true,
-          linked: true,
-        },
-        uTwists: {
-          value: this.settings.twists,
-          mixed: true,
-          linked: true,
-        },
-        uTwistSpeed: {
-          value: this.settings.twistSpeed,
-          mixed: true,
-          linked: true,
-        },
-        uRotateSpeed: {
-          value: this.settings.rotateSpeed,
-          mixed: true,
-          linked: true,
-        },
-        uMin: {
-          value: null,
-          mixed: true,
-          linked: true,
-        },
-        uMax: {
-          value: null,
-          mixed: true,
-          linked: true,
-        },
-        matcap: { value: matcaptexture },
-      },
+    let material = new THREE.MeshMatcapMaterial({
+      matcap: matcaptexture,
     });
-    // material.wireframe = true;
+
+    material.onBeforeCompile = (shader) => {
+      shader.uniforms = { ...shader.uniforms, ...this.uniforms };
+      shader.vertexShader = header + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <beginnormal_vertex>",
+        "#include <beginnormal_vertex>" + normals
+      );
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <begin_vertex>",
+        "#include <begin_vertex>" + geometry
+      );
+      material.userData.shader = shader;
+    };
+
     return material;
   }
 
@@ -310,59 +284,21 @@ float mapRange(float value, float min1, float max1, float min2, float max2) {
       this.geo.center();
       this.geo.computeBoundingBox();
 
-      // this.geo1.center();
-
-      if (this.material.uniforms) {
-        this.material.uniforms.uMin.value = this.geo.boundingBox.min;
-        this.material.uniforms.uMax.value = this.geo.boundingBox.max;
-        this.material.uniforms.uMax.value.x +=this.settings.fontSize/6;
-      }
+      this.uniforms.uMin.value = this.geo.boundingBox.min;
+      this.uniforms.uMax.value = this.geo.boundingBox.max;
+      this.uniforms.uMax.value.x += this.settings.fontSize / 6;
 
       this.textmesh = new THREE.Mesh(this.geo, this.material);
 
-      // let dd = THREE.extendMaterial(THREE.MeshDepthMaterial, {
-      //   template: this.material,
-      // });
-
-      // this.textmesh.castShadow = this.textmesh.receiveShadow = true;
-      // this.textmesh.customDepthMaterial = dd;
-
       this.group.add(this.textmesh);
     });
-
-    // let floor = new THREE.Mesh(
-    //   new THREE.PlaneGeometry(6.4, 6.4, 100, 100).rotateX(Math.PI / 2),
-    //   // new THREE.MeshStandardMaterial({ color: 0xffffff,side: THREE.DoubleSide })
-    //   new THREE.MeshStandardMaterial({
-    //     color: 0xcccccc,
-    //     side: THREE.DoubleSide,
-    //   })
-    // );
-    // floor.position.y = -2;
-    // this.scene.add(floor);
-    // floor.castShadow = floor.receiveShadow = true;
-  }
-
-  addLights() {
-    const light1 = new THREE.AmbientLight(0xffffff, 0.5);
-    const light2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    light2.position.set(0, 1, 0); // ~60º
-    this.scene.add(light2);
-
-    // const helper = new THREE.DirectionalLightHelper(light2, 5);
-    // this.scene.add( helper );
-
-    // const axesHelper = new THREE.AxesHelper(50);
-    // this.scene.add(axesHelper);
   }
 
   render() {
     if (!this.isPlaying) return;
     this.time += 0.05;
-    if (this.material.uniforms) {
-      this.material.uniforms.time.value = this.time;
-    }
-    this.controls.update()
+    this.uniforms.time.value = this.time;
+    this.controls.update();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.render.bind(this));
   }

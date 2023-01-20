@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "@parcel/config-default": "^2.8.2",
-    "extend-material": "^1.0.0",
     "gsap": "^3.11.4",
     "lil-gui": "^0.17.0",
     "three": "^0.148.0"
