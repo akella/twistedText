@@ -12,8 +12,12 @@ require("./extend");
 let matcaps = [matcap, matcap1, matcap2, matcap3];
 matcaps = matcaps.map((m) => new THREE.TextureLoader().load(m));
 
+import font from "../assets/font.data";
+import font0 from "../assets/font0.data";
+import font1 from "../assets/font1.data";
+import font2 from "../assets/font2.data";
 
-const FONTS = ["/font.json", "/font0.json", "/font1.json", "/font2.json"];
+const FONTS = [font,font0,font1,font2];
 
 export default class Sketch {
   constructor(options) {
@@ -295,7 +299,7 @@ float mapRange(float value, float min1, float max1, float min2, float max2) {
 
     this.geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
 
-    this.loader.load("/font1.json", (font) => {
+    this.loader.load(font1, (font) => {
       this.geo = new TextGeometry(this.settings.text, {
         font: font,
 
