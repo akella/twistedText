@@ -2,7 +2,7 @@
 
 ![Image Title](https://generative-placeholders.glitch.me/image?width=800&height=600")
 
-[Article on Codrops](https://tympanus.net/codrops/?p=69729)
+[Article on Codrops](https://tympanus.net/codrops/?p=69794)
 
 [Demo](http://tympanus.net/Development/TwistedText/)
 
@@ -19,6 +19,12 @@ Run it:
 
 ```
 npx parcel index.html
+```
+
+Built it:
+
+```
+parcel build index.html --public-url '.' --no-content-hash
 ```
 
 ## Credits
